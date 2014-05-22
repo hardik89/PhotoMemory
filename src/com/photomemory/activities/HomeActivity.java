@@ -1,4 +1,6 @@
-package com.photomemory;
+package com.photomemory.activities;
+
+import com.photomemory.R;
 
 import android.app.Activity;
 import android.os.Bundle;
