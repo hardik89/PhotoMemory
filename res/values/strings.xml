@@ -1,7 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+    <!-- General strings -->
     <string name="app_name">PhotoMemory</string>
-    <string name="hello_world">Hello world!</string>
+    <string name="cant_remember_text">Can\'t remember where you\'re parked? Need to find the last restaurant you were at?</string>
+    <string name="take_photo_text">Take a photo and we\'ll save the address for you.</string>
+
+    <!-- General Alt tags -->
+    <string name="camera_alt_text">Camera</string>
+
+    <!-- Action Bar Menu Item Strings -->
+    <string name="take_picture">Take Picture</string>
 
 </resources>

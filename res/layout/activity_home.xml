@@ -2,11 +2,57 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:padding="@dimen/padding_standard"
     tools:context="${packageName}.${activityClass}" >
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/hello_world" />
+    <RelativeLayout
+        android:id="@+id/no_pictures_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" >
+
+        <com.photometry.views.FjallaTextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/padding_standard"
+            android:gravity="center"
+            android:includeFontPadding="true"
+            android:text="@string/cant_remember_text"
+            android:textAppearance="@style/TextAppearance.Medium.Bold"
+            android:textColor="@color/charcoal_black" />
+
+        <com.photometry.views.CabinTextView
+            android:id="@+id/take_photo_text_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:gravity="center"
+            android:text="@string/take_photo_text"
+            android:textAppearance="@style/TextAppearance.Medium.Bold"
+            android:textColor="@android:color/white" />
+
+        <ImageView
+            android:id="@+id/camera_image_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_above="@id/take_photo_text_view"
+            android:layout_centerHorizontal="true"
+            android:layout_marginBottom="@dimen/padding_standard"
+            android:contentDescription="@string/camera_alt_text"
+            android:src="@drawable/ic_camera" />
+    </RelativeLayout>
+
+    <ScrollView
+        android:id="@+id/location_images_scroll_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true"
+        android:visibility="gone" >
+
+        <GridLayout
+            android:id="@+id/location_images_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:columnCount="1" />
+    </ScrollView>
 
 </RelativeLayout>
