@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+
+    <com.photometry.views.FjallaTextView
+        android:id="@+id/photometry_alert_dialog_headline"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingBottom="@dimen/padding_standard"
+        android:textAppearance="@style/TextAppearance.Medium.Bold"
+        android:textColor="@color/photometry_text_maroon" />
+
+    <com.photometry.views.FjallaTextView
+        android:id="@+id/photometry_alert_dialog_detail"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textAppearance="@style/TextAppearance.Medium"
+        android:textColor="@color/photometry_text_blue" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingTop="@dimen/padding_standard" >
+
+        <Button
+            android:id="@+id/photometry_alert_dialog_left_button"
+            style="@android:style/Holo.Light.SegmentedButton"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:textAppearance="@style/TextAppearance.Small.Bold"
+            android:textColor="@android:color/white" />
+
+        <Button
+            android:id="@+id/photometry_alert_dialog_right_button"
+            style="@android:style/Holo.Light.SegmentedButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:textAppearance="@style/TextAppearance.Small.Bold"
+            android:textColor="@android:color/white"
+            android:translationX="-1dp" />
+    </LinearLayout>
+
+</LinearLayout>

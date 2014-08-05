@@ -3,13 +3,20 @@
 
     <!-- General strings -->
     <string name="app_name">PhotoMemory</string>
+    <string name="okay">Okay</string>
     <string name="cant_remember_text">Can\'t remember where you\'re parked? Need to find the last restaurant you were at?</string>
     <string name="take_photo_text">Take a photo and we\'ll save the address for you.</string>
 
     <!-- General Alt tags -->
     <string name="camera_alt_text">Camera</string>
+    <string name="picture_alt_text">Captured Image</string>
 
     <!-- Action Bar Menu Item Strings -->
     <string name="take_picture">Take Picture</string>
+
+    <!-- Location Services Error -->
+    <string name="location_services_disabled_title">Location Services Disabled</string>
+    <string name="location_services_disabled_details">Photometry would like to use your location. Please turn on your location</string>
+    <string name="location_services_enable_button">Enable Location</string>
 
 </resources>

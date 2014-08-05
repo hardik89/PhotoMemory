@@ -6,16 +6,19 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
-import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Point;
 import android.location.Location;
+import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.provider.Settings;
+import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.Display;
 import android.view.Menu;
@@ -24,6 +27,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.GridLayout;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesClient;
@@ -31,19 +35,25 @@ import com.google.android.gms.location.LocationClient;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.photomemory.R;
+import com.photometry.fragments.dialog.PhotometryAlertDialogFactory;
+import com.photometry.fragments.dialog.PhotometryAlertDialogFactory.PhotometryAlertDialogTypes;
+import com.photometry.fragments.dialog.PhotometryAlertDialogFragment;
+import com.photometry.fragments.dialog.PhotometryAlertDialogFragment.OnDismissListener;
 import com.photometry.utils.Constants;
+import com.photometry.utils.LocationUtils;
 
-public class HomeActivity extends Activity implements LocationListener, GooglePlayServicesClient.ConnectionCallbacks, GooglePlayServicesClient.OnConnectionFailedListener{
+public class HomeActivity extends FragmentActivity implements LocationListener, GooglePlayServicesClient.ConnectionCallbacks, GooglePlayServicesClient.OnConnectionFailedListener, OnDismissListener{
 
 	private final int IMAGE_CAPTURE_REQUEST = 1000;
 	private String mCurrentPhotoPath = null;
 	private Uri photoUri = null;
 	public static final int LOCATION_ACCURACY = 200;
 
+	private LocationManager lm = null;
 	private LocationClient locationClient;
-	public Location location = null;
+	public Location currentLocation = null;
 	public LocationRequest locationRequest = null;
-	public String currentLocation = "";
+	public String currentLocationAddress = "";
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -61,6 +71,14 @@ public class HomeActivity extends Activity implements LocationListener, GooglePl
 		locationClient = new LocationClient(this, this, this);
 		locationRequest = LocationRequest.create();
 		locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+
+		if(lm == null) {
+			lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+			if(!LocationUtils.isProviderEnabled(lm)) {
+				PhotometryAlertDialogFragment fragment = PhotometryAlertDialogFactory.build(PhotometryAlertDialogTypes.LOCATION_SERVICES_ERROR, 0);
+				PhotometryAlertDialogFactory.showPhotometryAlertDialog(fragment, getSupportFragmentManager());
+			}
+		}
 	}
 
 	@Override
@@ -71,6 +89,11 @@ public class HomeActivity extends Activity implements LocationListener, GooglePl
 
 	@Override
 	protected void onStop() {
+
+		if(locationClient.isConnected()) {
+			locationClient.removeLocationUpdates(this);
+		}
+		locationClient.disconnect();
 		super.onStop();
 	}
 
@@ -99,6 +122,9 @@ public class HomeActivity extends Activity implements LocationListener, GooglePl
 		super.onActivityResult(requestCode, resultCode, data);
 		if(resultCode == RESULT_OK) {
 
+			if(currentLocation != null) {
+				Toast.makeText(HomeActivity.this, "Latitude "+ currentLocation.getLatitude() + "\nLongitude "+ currentLocation.getLongitude(), Toast.LENGTH_LONG).show();
+			}
 			saveImageToSDCard();
 			setPic();
 		}
@@ -133,11 +159,9 @@ public class HomeActivity extends Activity implements LocationListener, GooglePl
 		View imagesView = findViewById(R.id.location_images_layout);
 		findViewById(R.id.location_images_scroll_view).setVisibility(View.VISIBLE);
 		findViewById(R.id.no_pictures_layout).setVisibility(View.GONE);
-		ImageView iv = new ImageView(this);
+		ImageView iv = (ImageView) getLayoutInflater().inflate(R.layout.layout_image_capture_view, null);
 		iv.setImageBitmap(bitmap);
 		((GridLayout)imagesView).addView(iv);
-
-
 
 	}
 
@@ -218,14 +242,14 @@ public class HomeActivity extends Activity implements LocationListener, GooglePl
 
 	@Override
 	public void onConnectionFailed(ConnectionResult arg0) {
-		// TODO Auto-generated method stub
+		// Fail silently
 
 	}
 
 	@Override
-	public void onConnected(Bundle arg0) {
-		// TODO Auto-generated method stub
-
+	public void onConnected(Bundle data) {
+		currentLocation = locationClient.getLastLocation();
+		locationClient.requestLocationUpdates(locationRequest, this);
 	}
 
 	@Override
@@ -235,8 +259,27 @@ public class HomeActivity extends Activity implements LocationListener, GooglePl
 	}
 
 	@Override
-	public void onLocationChanged(Location arg0) {
+	public void onLocationChanged(Location location) {
+		currentLocation = location;
+		if(currentLocation.getAccuracy() <= LOCATION_ACCURACY) {
+			if(locationClient.isConnected()) {
+				locationClient.removeLocationUpdates(this);
+			}
+			Log.v("HomeActivity", "Location is accurate to 200 meters");
+			locationClient.disconnect();
+		}
+	}
+
+	@Override
+	public void photometryAlertLeftButtonClicked(int dialogId) {
 		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void photometryAlertRightButtonClicked(int dialogId) {
+		Intent destinationIntent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+		startActivity(destinationIntent);
 
 	}
 

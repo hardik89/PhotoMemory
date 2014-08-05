@@ -3,5 +3,7 @@
 
     <color name="charcoal_black">#3E3E3E</color>
     <color name="action_bar_blue">#2e85e6</color>
+    <color name="photometry_text_maroon">#A262CC</color>
+    <color name="photometry_text_blue">#1A81DB</color>
 
 </resources>
