@@ -11,6 +11,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Point;
+import android.location.Address;
 import android.location.Location;
 import android.location.LocationManager;
 import android.net.Uri;
@@ -34,6 +35,7 @@ import com.google.android.gms.common.GooglePlayServicesClient;
 import com.google.android.gms.location.LocationClient;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.maps.model.LatLng;
 import com.photomemory.R;
 import com.photometry.fragments.dialog.PhotometryAlertDialogFactory;
 import com.photometry.fragments.dialog.PhotometryAlertDialogFactory.PhotometryAlertDialogTypes;
@@ -41,8 +43,10 @@ import com.photometry.fragments.dialog.PhotometryAlertDialogFragment;
 import com.photometry.fragments.dialog.PhotometryAlertDialogFragment.OnDismissListener;
 import com.photometry.utils.Constants;
 import com.photometry.utils.LocationUtils;
+import com.photometry.utils.LocationUtils.GetAddressFromLatLngTask;
+import com.photometry.utils.LocationUtils.GetAddressFromLatLngTask.AddressRetrievedCallback;
 
-public class HomeActivity extends FragmentActivity implements LocationListener, GooglePlayServicesClient.ConnectionCallbacks, GooglePlayServicesClient.OnConnectionFailedListener, OnDismissListener{
+public class HomeActivity extends FragmentActivity implements LocationListener, GooglePlayServicesClient.ConnectionCallbacks, GooglePlayServicesClient.OnConnectionFailedListener, OnDismissListener, AddressRetrievedCallback{
 
 	private final int IMAGE_CAPTURE_REQUEST = 1000;
 	private String mCurrentPhotoPath = null;
@@ -122,9 +126,6 @@ public class HomeActivity extends FragmentActivity implements LocationListener, 
 		super.onActivityResult(requestCode, resultCode, data);
 		if(resultCode == RESULT_OK) {
 
-			if(currentLocation != null) {
-				Toast.makeText(HomeActivity.this, "Latitude "+ currentLocation.getLatitude() + "\nLongitude "+ currentLocation.getLongitude(), Toast.LENGTH_LONG).show();
-			}
 			saveImageToSDCard();
 			setPic();
 		}
@@ -149,19 +150,33 @@ public class HomeActivity extends FragmentActivity implements LocationListener, 
 		int photoH = bmOptions.outHeight;
 
 		// Determine how much to scale down the image
-		int scaleFactor = Math.max(photoW/ targetW, photoH/targetH);
+		int scaleFactor = (int) (Math.max(photoW/ targetW, photoH/targetH) * 1.5);
 
 		bmOptions.inJustDecodeBounds = false;
 		bmOptions.inSampleSize = scaleFactor;
+		bmOptions.inDither = false;
 		bmOptions.inPurgeable = true;
 
 		Bitmap bitmap = BitmapFactory.decodeFile(mCurrentPhotoPath, bmOptions);
-		View imagesView = findViewById(R.id.location_images_layout);
+		GridLayout imagesView = (GridLayout)findViewById(R.id.location_images_layout);
 		findViewById(R.id.location_images_scroll_view).setVisibility(View.VISIBLE);
 		findViewById(R.id.no_pictures_layout).setVisibility(View.GONE);
 		ImageView iv = (ImageView) getLayoutInflater().inflate(R.layout.layout_image_capture_view, null);
+		iv.setPadding(20, 0, 20, 20);
 		iv.setImageBitmap(bitmap);
-		((GridLayout)imagesView).addView(iv);
+		iv.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				if(currentLocation != null) {
+					LatLng latlng = new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude());
+					LocationUtils.GetAddressFromLatLngTask addressTask = new GetAddressFromLatLngTask(HomeActivity.this, HomeActivity.this);
+					addressTask.execute(latlng);
+				}
+
+			}
+		});
+		imagesView.addView(iv);
 
 	}
 
@@ -272,7 +287,7 @@ public class HomeActivity extends FragmentActivity implements LocationListener, 
 
 	@Override
 	public void photometryAlertLeftButtonClicked(int dialogId) {
-		// TODO Auto-generated method stub
+		// DO NOTHING
 
 	}
 
@@ -280,6 +295,19 @@ public class HomeActivity extends FragmentActivity implements LocationListener, 
 	public void photometryAlertRightButtonClicked(int dialogId) {
 		Intent destinationIntent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
 		startActivity(destinationIntent);
+
+	}
+
+	@Override
+	public void onAddressRetrieveFailed() {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void onAddressRetrieveSuccess(Address address) {
+		Toast.makeText(this, address.getAddressLine(0), Toast.LENGTH_LONG).show();
+		Log.d("Address", address.getAddressLine(0) + " " +address.getLocality());
 
 	}
 
